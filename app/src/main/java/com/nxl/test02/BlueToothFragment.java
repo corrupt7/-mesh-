@@ -392,7 +392,6 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
                     //扫描可用设备时将不在列表的ble设备加入列表
 
                     if(!isRepetition){
-//                        long startTime = System.currentTimeMillis(); //获取开始时间
                         ExtendedBluetoothDevice bean = new ExtendedBluetoothDevice(result,meshBeacon);
                         deviceBeanList.add(bean);
                         deviceAdapter.notifyDataSetChanged();
@@ -400,9 +399,6 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
                         for (int i=0;i<bytes.length;i++){
                             Log.d(TAG, "bytes: "+i+" = "+bytes[i]);
                         }
-//                        long startTime = System.currentTimeMillis(); //获取开始时间
-//                        long endTime = System.currentTimeMillis(); //获取结束时间
-//                        System.out.println("运行时间：" + (endTime - startTime) + "ms"); //单位毫秒
                     }
                 }
                 catch (Exception e){
