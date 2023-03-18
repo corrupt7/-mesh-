@@ -112,6 +112,11 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
      * 添加监听函数
      */
     private void setObservers(){
+        nodes = meshTools.getMeshNetworkLiveData().getMeshNetwork().getNodes();
+        for (int i=0;i< nodes.size();i++){
+            setupMeshMessageObservers(i);
+            getNodeStatus(nodes.get(i));
+        }
 //        meshTools.getMeshNetworkLiveData().observe(this,meshNetworkLiveData -> {
 //            refreshData();
 //            adapter.setData(nodes,state);
@@ -127,6 +132,14 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
 
 
     private void refreshState(int position,String stateData){
+        List<String> stateValue = state.getValue();
+        stateValue.set(position,stateData);
+        state.postValue(stateValue);
+        adapter.setData(nodes,state);
+        adapter.notifyDataSetChanged();
+    }
+
+    private void refreshState(int position,String stateData,String color){
         List<String> stateValue = state.getValue();
         stateValue.set(position,stateData);
         state.postValue(stateValue);
@@ -177,6 +190,37 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
 
 
     @SuppressLint("ResourceAsColor")
+    private void setupMeshMessageObservers(int position){
+        if(meshTools.getMeshMessageLiveData().hasObservers()){
+            meshTools.getMeshMessageLiveData().removeObservers(this);
+        }
+        meshTools.getMeshMessageLiveData().observe(this,meshMessage -> {
+            if (meshMessage instanceof GenericOnOffStatus) {
+                final GenericOnOffStatus status = (GenericOnOffStatus) meshMessage;
+                final boolean presentState = status.getPresentState();
+                final Boolean targetOnOff = status.getTargetState();
+                if (targetOnOff == null) {
+                    if (presentState) {
+                        //    textView.setText("开启状态");
+                        refreshState(position,"开启状态");
+                    } else {
+                        //    textView.setText("关闭状态");
+                        refreshState(position,"关闭状态");
+                    }
+                } else {
+                    if (!targetOnOff) {
+                        //        textView.setText("开启状态");
+                        refreshState(position,"开启状态");
+                    } else {
+                        //       textView.setText("关闭状态");
+                        refreshState(position,"关闭状态");
+                    }
+                }
+            }
+        });
+    }
+
+    @SuppressLint("ResourceAsColor")
     private void setupMeshMessageObservers(TextView textView,int position){
         if(meshTools.getMeshMessageLiveData().hasObservers()){
             meshTools.getMeshMessageLiveData().removeObservers(this);
@@ -210,6 +254,9 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
             }
         });
     }
+
+
+
 
     /**
      * 更改设备名字的弹窗

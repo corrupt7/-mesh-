@@ -124,6 +124,7 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
             public void onItemClick(View v, int position) {
 
                 if (!meshRepository.getUnprovisionedMeshNode().hasObservers()){
+                    System.out.println("!meshRepository.getUnprovisionedMeshNode().hasObservers()");
                     meshRepository.getUnprovisionedMeshNode().observe(getActivity(),meshNode ->{
                         if (meshNode != null){
                             final ProvisioningCapabilities capabilities = meshNode.getProvisioningCapabilities();
@@ -176,7 +177,7 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
                                     System.out.println("识别时间：" + (endTime - startTime) + "ms"); //单位毫秒
                                 }
                                 return;
-                            }
+                             }
                         }
                         catch (Exception e){
                             e.printStackTrace();
@@ -200,7 +201,7 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
                                 System.out.println("连接时间：" + (endTime - startTime) + "ms"); //单位毫秒
                                 return;
                             }
-                            Log.d(TAG, "文字: "+connectDeviceButton.getText());;
+                            Log.d(TAG, "文字: "+connectDeviceButton.getText());
                             if (connectDeviceButton.getText().toString().equals("连接至此设备")){
                                 connectDeviceButton.setText("连接中...");
                                 connectDeviceButton.setEnabled(false);
@@ -408,4 +409,6 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
         };
 
     }
+
+
 }
