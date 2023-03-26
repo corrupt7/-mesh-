@@ -88,6 +88,14 @@ public class MainActivity extends AppCompatActivity {
                 retrofit = new Retrofit.Builder().baseUrl(baseUrl).build();
                 loginService = retrofit.create(LoginService.class);
 
+
+                Toast.makeText(getApplicationContext(),"登录成功",Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent();
+                intent.putExtra("username",user.getUsername());
+                intent.setClass(MainActivity.this, InterfaceActivity.class);
+                startActivity(intent);
+
+
                 if (usernameText.toString().isEmpty()||pwdText.toString().isEmpty()){
                         Toast.makeText(getApplicationContext(),"请输入完整信息",Toast.LENGTH_LONG).show();
                 }

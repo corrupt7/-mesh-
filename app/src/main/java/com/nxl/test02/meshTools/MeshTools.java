@@ -351,6 +351,8 @@ public class MeshTools implements MeshProvisioningStatusCallbacks, MeshStatusCal
         initIsConnectedLiveData(connectToNetwork);
         mConnectionState.postValue("Connecting....");
         Log.d("AA", "Connect issued");
+//        mBleMeshManager.setmIsDeviceReady(false);
+//        mBleMeshManager.setisProvisioningComplete(false);
         mBleMeshManager.connect(device.getDevice()).retry(3, 20).enqueue();
     }
 
@@ -379,6 +381,13 @@ public class MeshTools implements MeshProvisioningStatusCallbacks, MeshStatusCal
     public void disconnect() {
         clearProvisioningLiveData();
         mIsProvisioningComplete = false;
+        mBleMeshManager.disconnect().enqueue();
+    }
+
+    //断开连接但不清空mesh
+    public void mydisconnect() {
+//        clearProvisioningLiveData();
+//        mIsProvisioningComplete = false;
         mBleMeshManager.disconnect().enqueue();
     }
 

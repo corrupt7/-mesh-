@@ -61,7 +61,6 @@ public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> 
     private boolean mIsDeviceReady;
     private boolean mNodeReset;
 
-
     private class BleMeshGattCallbacks extends BleManager.BleManagerGattCallback {
 
         @Override

@@ -13,7 +13,6 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -55,6 +54,7 @@ import no.nordicsemi.android.mesh.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.mesh.transport.ConfigModelAppBind;
 import no.nordicsemi.android.mesh.transport.ConfigModelSubscriptionAdd;
 import no.nordicsemi.android.mesh.transport.ConfigModelSubscriptionVirtualAddressAdd;
+import no.nordicsemi.android.mesh.transport.ConfigNodeReset;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.MeshModel;
@@ -74,6 +74,7 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
     private View rootView;
     private BlueToothUtil blueTooth;
     private Context context;
+    private List<ProvisionedMeshNode> nodes;
     private RecyclerView recyclerView;
     private DeviceAdapter deviceAdapter;
     private List<ExtendedBluetoothDevice> deviceBeanList;
@@ -82,6 +83,8 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
     final BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
     private ExtendedBluetoothDevice device;
     private boolean isRepeat = false;
+    private boolean myisRepeat = false;
+    public int count=1;
 
 
     public BlueToothFragment() {
@@ -177,7 +180,7 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
                                     System.out.println("识别时间：" + (endTime - startTime) + "ms"); //单位毫秒
                                 }
                                 return;
-                             }
+                            }
                         }
                         catch (Exception e){
                             e.printStackTrace();
@@ -192,23 +195,31 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
                         bar.setVisibility(View.INVISIBLE);
                         try {
                             connectDeviceButton = (Button) v;
-                            if(isRepeat&&connectDeviceButton.getText().toString().equals("连接至此设备")){
+                            if(myisRepeat&&connectDeviceButton.getText().toString().equals("连接至此设备")){
+//                                meshRepository.mydisconnect();
                                 connectDeviceButton.setText("连接中...");
                                 connectDeviceButton.setEnabled(false);
                                 long startTime = System.currentTimeMillis(); //获取开始时间
-                                meshRepository.connect(getActivity(),deviceBean,isRepeat);
+                                device = deviceBean;
+                                meshRepository.connect(getActivity(),deviceBean,myisRepeat);
                                 long endTime = System.currentTimeMillis(); //获取结束时间
                                 System.out.println("连接时间：" + (endTime - startTime) + "ms"); //单位毫秒
                                 return;
                             }
                             Log.d(TAG, "文字: "+connectDeviceButton.getText());
                             if (connectDeviceButton.getText().toString().equals("连接至此设备")){
+//                                meshRepository.mydisconnect();
                                 connectDeviceButton.setText("连接中...");
                                 connectDeviceButton.setEnabled(false);
                                 device = deviceBean;
                                 meshRepository.connect(getActivity(),deviceBean,false);
+                                myisRepeat=true;
+
                             }else if (connectDeviceButton.getText().toString().equals("断开连接")){
                                 try {
+                                    nodes = meshRepository.getMeshNetworkLiveData().getMeshNetwork().getNodes();
+                                    final ConfigNodeReset configNodeReset = new ConfigNodeReset();
+                                    meshRepository.getMeshManagerApi().createMeshPdu(nodes.get(position).getUnicastAddress(),configNodeReset);
                                     meshRepository.disconnect();
                                     connectDeviceButton.setText("连接至此设备");
                                 }
@@ -302,6 +313,10 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
 
                         }
                         connectDeviceButton.setText("断开连接");
+                        if(count==1){
+                            count-=1;
+                            meshRepository.mydisconnect();
+                        }
                         connectDeviceButton.setEnabled(true);
                     }
                 } else {
@@ -334,8 +349,9 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
                         }
                     }
                     isRepeat = false;
-                    meshRepository.disconnect();
-                    deviceBeanList.clear();
+                    //debug
+//                    meshRepository.disconnect();
+//                    deviceBeanList.clear();
                     deviceAdapter.setData(deviceBeanList);
                     deviceAdapter.notifyDataSetChanged();
                     bar.setVisibility(View.VISIBLE);
