@@ -27,7 +27,7 @@
     <string name="password_test">maxnxl555</string>
     <string name="device_group">设置分组</string>
     <string name="device_connect">连接至此设备</string>
-    <string name="not_search_device">取消搜索</string>
+    <string name="not_search_device">连接至下一个设备</string>
     <string name="device_open">打开</string>
     <string name="device_close">关闭</string>
     <string name="device_name">设备名称</string>

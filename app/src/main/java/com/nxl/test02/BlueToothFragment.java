@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
+import android.util.TimeUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +42,8 @@ import static com.nxl.test02.tools.BleScanSetting.buildRepeatScanFilters;
 import static com.nxl.test02.tools.BleScanSetting.buildScanFilters;
 import static com.nxl.test02.tools.BleScanSetting.buildScanSettings;
 
+import java.security.Timestamp;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -196,7 +199,6 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
                         try {
                             connectDeviceButton = (Button) v;
                             if(myisRepeat&&connectDeviceButton.getText().toString().equals("连接至此设备")){
-//                                meshRepository.mydisconnect();
                                 connectDeviceButton.setText("连接中...");
                                 connectDeviceButton.setEnabled(false);
                                 long startTime = System.currentTimeMillis(); //获取开始时间
@@ -208,7 +210,6 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
                             }
                             Log.d(TAG, "文字: "+connectDeviceButton.getText());
                             if (connectDeviceButton.getText().toString().equals("连接至此设备")){
-//                                meshRepository.mydisconnect();
                                 connectDeviceButton.setText("连接中...");
                                 connectDeviceButton.setEnabled(false);
                                 device = deviceBean;
@@ -288,6 +289,12 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
         }
     }
 
+    private void disconnet(){
+        if(meshRepository.isProvisioningComplete()){
+            meshRepository.disconnect();
+        }
+    }
+
     private void setupProvisionerStateObservers(){
         meshRepository.getProvisioningState().observe(getActivity(), provisioningStatusLiveData -> {
             if (provisioningStatusLiveData != null) {
@@ -313,10 +320,6 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
 
                         }
                         connectDeviceButton.setText("断开连接");
-                        if(count==1){
-                            count-=1;
-                            meshRepository.mydisconnect();
-                        }
                         connectDeviceButton.setEnabled(true);
                     }
                 } else {
@@ -362,8 +365,9 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
                 break;
             case R.id.id_not_search_device:
                 try {
-                    scanner.stopScan(scanCallback);
-                    bar.setVisibility(View.INVISIBLE);
+//                    scanner.stopScan(scanCallback);
+//                    bar.setVisibility(View.INVISIBLE);
+                    meshRepository.disconnect();
                 }catch (Exception e){
                     e.printStackTrace();
                 }
