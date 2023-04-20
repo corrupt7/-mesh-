@@ -370,7 +370,7 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     private void operateScenecLEDDevice(ProvisionedMeshNode node,int tid){
-        try {:
+        try {
             final ApplicationKey appKey = meshTools.getMeshNetworkLiveData().getMeshNetwork().getAppKey(0);
 
             final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey,LEDStatus,new Random().nextInt(20)+tid);
