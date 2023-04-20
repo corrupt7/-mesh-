@@ -167,11 +167,11 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if(i==0){
-                            operateLEDDevice(nodes.get(position));
+                            operateScenecLEDDevice(nodes.get(position),0);
                             refreshState(position,"开启状态");
                             textView.setTextColor(NodeActivity.this.getResources().getColor(R.color.teal_200));
                         }else if(i==1){
-                            operateScenecLEDDevice(nodes.get(position),1);
+                            operateScenecLEDDevice(nodes.get(position),20);
                             refreshState(position,"开启状态");
                             textView.setTextColor(NodeActivity.this.getResources().getColor(R.color.teal_200));
                         }
@@ -183,7 +183,7 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
                 break;
             case R.id.node_close:
                 LEDStatus=false;
-                operateLEDDevice(nodes.get(position));
+                operateScenecLEDDevice(nodes.get(position),40);
                 textView.setTextColor(this.getResources().getColor(R.color.red));
                 refreshState(position,"关闭状态");
                 break;
@@ -370,10 +370,10 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     private void operateScenecLEDDevice(ProvisionedMeshNode node,int tid){
-        try {
+        try {:
             final ApplicationKey appKey = meshTools.getMeshNetworkLiveData().getMeshNetwork().getAppKey(0);
 
-            final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey,LEDStatus,tid);
+            final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey,LEDStatus,new Random().nextInt(20)+tid);
             for (Element element:node.getElements().values()){
                 final int address = element.getElementAddress();
                 ArrayList<MeshModel> meshModels = new ArrayList<>(element.getMeshModels().values());
@@ -393,7 +393,7 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
     private void operateLEDDevice(ProvisionedMeshNode node){
         try {
             final ApplicationKey appKey = meshTools.getMeshNetworkLiveData().getMeshNetwork().getAppKey(0);
-            final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey,LEDStatus,0);
+            final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey,LEDStatus,new Random().nextInt());
             for (Element element:node.getElements().values()){
                 final int address = element.getElementAddress();
                 ArrayList<MeshModel> meshModels = new ArrayList<>(element.getMeshModels().values());
