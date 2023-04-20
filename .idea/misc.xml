@@ -3,11 +3,20 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/系统默认/桌面/代码库/大创/Test12/app/src/main/res/drawable/divider.xml" value="0.2105" />
+        <entry key="..\:/系统默认/桌面/代码库/大创/Test12/app/src/main/res/layout/activity_device_in_group.xml" value="0.25364583333333335" />
         <entry key="..\:/系统默认/桌面/代码库/大创/Test12/app/src/main/res/layout/activity_interface.xml" value="0.12335359675785208" />
         <entry key="..\:/系统默认/桌面/代码库/大创/Test12/app/src/main/res/layout/activity_main.xml" value="0.13020833333333334" />
         <entry key="..\:/系统默认/桌面/代码库/大创/Test12/app/src/main/res/layout/activity_node.xml" value="0.16145833333333334" />
+        <entry key="..\:/系统默认/桌面/代码库/大创/Test12/app/src/main/res/layout/activity_schedule_task_monitor.xml" value="0.25364583333333335" />
         <entry key="..\:/系统默认/桌面/代码库/大创/Test12/app/src/main/res/layout/fragment_blue_tooth.xml" value="0.264" />
+        <entry key="..\:/系统默认/桌面/代码库/大创/Test12/app/src/main/res/layout/fragment_group.xml" value="0.25364583333333335" />
+        <entry key="..\:/系统默认/桌面/代码库/大创/Test12/app/src/main/res/layout/fragment_schedule.xml" value="0.25364583333333335" />
+        <entry key="..\:/系统默认/桌面/代码库/大创/Test12/app/src/main/res/layout/fragment_user.xml" value="0.25364583333333335" />
+        <entry key="..\:/系统默认/桌面/代码库/大创/Test12/app/src/main/res/layout/item_group_list.xml" value="0.25364583333333335" />
         <entry key="..\:/系统默认/桌面/代码库/大创/Test12/app/src/main/res/layout/item_node.xml" value="0.25364583333333335" />
+        <entry key="..\:/系统默认/桌面/代码库/大创/Test12/app/src/main/res/layout/open_single_list.xml" value="0.25364583333333335" />
+        <entry key="..\:/系统默认/桌面/代码库/大创/Test12/app/src/main/res/layout/tab_layout.xml" value="0.25364583333333335" />
         <entry key="..\:/系统默认/桌面/代码库/大创/Test12/app/src/main/res/layout/upgrade_device_name_dialog.xml" value="0.2203125" />
       </map>
     </option>

@@ -9,6 +9,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nxl.test02.meshTools.MeshTools;
 import com.nxl.test02.adapter.NodeAdapter;
@@ -57,7 +59,6 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_node);
-
         initData();
         setObservers();
         initView();
@@ -157,16 +158,33 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
                 break;
             case R.id.node_open:
                 LEDStatus=true;
-                operateLEDDevice(nodes.get(position));
-         //       textView.setText("开启状态");
-                refreshState(position,"开启状态");
-                textView.setTextColor(this.getResources().getColor(R.color.teal_200));
+
+                //弹窗选择
+                final String[] items = {"打开设备","打开情景灯"};
+                AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+                alertBuilder.setTitle("打开设备");
+                alertBuilder.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if(i==0){
+                            operateLEDDevice(nodes.get(position));
+                            refreshState(position,"开启状态");
+                            textView.setTextColor(NodeActivity.this.getResources().getColor(R.color.teal_200));
+                        }else if(i==1){
+                            operateScenecLEDDevice(nodes.get(position),1);
+                            refreshState(position,"开启状态");
+                            textView.setTextColor(NodeActivity.this.getResources().getColor(R.color.teal_200));
+                        }
+                        Toast.makeText(NodeActivity.this, items[i], Toast.LENGTH_SHORT).show();
+                        dialogInterface.dismiss();
+                    }
+                });
+                alertBuilder.show();
                 break;
             case R.id.node_close:
                 LEDStatus=false;
                 operateLEDDevice(nodes.get(position));
                 textView.setTextColor(this.getResources().getColor(R.color.red));
-           //     textView.setText("关闭状态");
                 refreshState(position,"关闭状态");
                 break;
             case R.id.set_group:
@@ -351,10 +369,31 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
         dialog.show();
     }
 
+    private void operateScenecLEDDevice(ProvisionedMeshNode node,int tid){
+        try {
+            final ApplicationKey appKey = meshTools.getMeshNetworkLiveData().getMeshNetwork().getAppKey(0);
+
+            final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey,LEDStatus,tid);
+            for (Element element:node.getElements().values()){
+                final int address = element.getElementAddress();
+                ArrayList<MeshModel> meshModels = new ArrayList<>(element.getMeshModels().values());
+                for(int i = 0;i<meshModels.size();i++){
+                    if (meshModels.get(i).getModelId()==0x1000){
+                        Log.v(TAG, "Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
+                        meshTools.getMeshManagerApi().createMeshPdu(address,genericOnOffSet);
+                    }
+                }
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     private void operateLEDDevice(ProvisionedMeshNode node){
         try {
             final ApplicationKey appKey = meshTools.getMeshNetworkLiveData().getMeshNetwork().getAppKey(0);
-            final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey,LEDStatus,new Random().nextInt());
+            final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey,LEDStatus,0);
             for (Element element:node.getElements().values()){
                 final int address = element.getElementAddress();
                 ArrayList<MeshModel> meshModels = new ArrayList<>(element.getMeshModels().values());

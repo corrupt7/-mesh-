@@ -47,8 +47,11 @@ public class InterfaceActivity extends AppCompatActivity implements View.OnClick
         String username = intent.getStringExtra("username");
         bundle = new Bundle();
         bundle.putString("username",username);
+        //初始化页面，加入4个fragment
         initViewPager();
+        //获取底部组件
         initTabView();
+        //状态栏通知
         initNotification();
         setTitle("设备管理");
     }

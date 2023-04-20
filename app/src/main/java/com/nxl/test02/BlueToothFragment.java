@@ -99,7 +99,9 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getActivity();
+        //生成scanback
         initBleScan();
+        //获取meshtool
         init_mesh();
     }
 
@@ -113,6 +115,7 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
         //数据的准备
         blueTooth = new BlueToothUtil();
         deviceBeanList = new ArrayList<>();
+        //进度条
         bar = rootView.findViewById(R.id.state_scanning);
 
         //列表的数据注册
@@ -348,7 +351,7 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         if (context.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA, Manifest.permission.BLUETOOTH_SCAN,}, 1);
+                            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA, Manifest.permission.BLUETOOTH_SCAN,Manifest.permission.BLUETOOTH_CONNECT}, 1);
                         }
                     }
                     isRepeat = false;
@@ -385,6 +388,7 @@ public class BlueToothFragment extends Fragment implements View.OnClickListener 
 
     @SuppressLint("MissingPermission")
     public void initBleScan(){
+        //扫描回调函数
         scanCallback = new ScanCallback() {
             @Override
             public void onScanFailed(int errorCode) {

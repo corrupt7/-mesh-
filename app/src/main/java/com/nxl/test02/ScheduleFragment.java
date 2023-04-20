@@ -45,7 +45,7 @@ public class ScheduleFragment extends Fragment implements SwipeRefreshLayout.OnR
     private SwipeRefreshLayout swipeRefreshLayout;
     private PendingIntent pendingIntent;
     private MeshTools meshTools;
-
+    //定时界面
 
     public ScheduleFragment() {
     }

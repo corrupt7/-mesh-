@@ -31,6 +31,7 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
         postValue(this);
     }
 
+    //可以获取网络中的信息
     public MeshNetwork getMeshNetwork() {
         return meshNetwork;
     }

@@ -27,7 +27,6 @@ public class UserFragment extends Fragment {
     public UserFragment() {
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +99,7 @@ public class UserFragment extends Fragment {
                     ToastUtils.show(getActivity(),"系统内部错误");
                     return;
                 }
+                //* 需要连接到代理节点
                 if (!meshTools.isConnectedToProxy().getValue()){
                     ToastUtils.show(getActivity(),"需要先连接至组网");
                     return;

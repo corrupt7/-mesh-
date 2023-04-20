@@ -92,10 +92,12 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //sqlite存储
         scheduleTaskDatabase = Room.databaseBuilder(getActivity(),ScheduleTaskDatabase.class,"schedule")
                 .allowMainThreadQueries()
                 .build();
         scheduleTaskDao = scheduleTaskDatabase.getScheduleTaskDao();
+        //获取mesh网络
         meshRepository = MeshTools.getInstance();
         if (meshRepository==null){
             meshRepository = ((InterfaceActivity)getActivity()).getMeshTools();
@@ -104,6 +106,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
         meshRepository.isConnectedToProxy().observe(getActivity(),aBoolean -> {
             isConnectToProxy = aBoolean;
         });
+        //置空
         deviceLiveData.postValue(null);
     }
 
@@ -114,6 +117,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
         if (rootView == null) {
         rootView = inflater.inflate(R.layout.fragment_group, container, false);
         }
+        //获取所有组
         groups = meshRepository.getMeshNetworkLiveData().getMeshNetwork().getGroups();
         insertButton = rootView.findViewById(R.id.insert_group);
         clearButton = rootView.findViewById(R.id.clear_groups);
@@ -303,8 +307,9 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
      */
     @SuppressLint({"MissingPermission", "NewApi"})
     private void operateLEDDevice(Group group){
+        //重新连接至代理节点
         if (!isConnectToProxy){
-            meshRepository.getmSentGroupMessage().removeObservers(getActivity());
+            //meshRepository.getmSentGroupMessage().removeObservers(getActivity());
             meshRepository.getmIsSentGroupMessage().postValue(true);
             meshRepository.getmSentGroupMessage().postValue(false);
             meshRepository.getmSentGroupMessage().observe(getActivity(),aBoolean -> {
@@ -315,7 +320,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
                     }
                 }
             });
-            meshRepository.isConnectedToProxy().removeObservers(getActivity());
+            //meshRepository.isConnectedToProxy().removeObservers(getActivity());
             ToastUtils.show(getActivity(),"正在为您重新连接回mesh网络...");
             meshRepository.isConnectedToProxy().observe(getActivity(),aBoolean -> {
                 isConnectToProxy = aBoolean;
@@ -361,16 +366,20 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
             }
         };
         scanner.startScan(buildRepeatScanFilters(),buildScanSettings(),scanCallback);
-        Executor singleThreadExecutor = Executors.newSingleThreadExecutor();
-        singleThreadExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(15);
-                    scanner.stopScan(scanCallback);
+//        Executor singleThreadExecutor = Executors.newSingleThreadExecutor();
+//        singleThreadExecutor.execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+        try {
+            Thread.sleep(30);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        scanner.stopScan(scanCallback);
                     if (deviceLiveData.getValue()==null){
-                        meshRepository.isConnectedToProxy().removeObservers(getActivity());
-                        meshRepository.getmSentGroupMessage().removeObservers(getActivity());
+                        //meshRepository.isConnectedToProxy().removeObservers(getActivity());
+                        //meshRepository.getmSentGroupMessage().removeObservers(getActivity());
                         meshRepository.getmIsSentGroupMessage().postValue(false);
                         final AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
                         dialog.setTitle("无法重连回网络");
@@ -382,13 +391,14 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
                         });
                         dialog.show();
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+                //} //catch (InterruptedException e) {
+                   // e.printStackTrace();
+               // }
+           // }
+       // });
 
     }
+    //发送数据
     private  void sendMessage(Group group){
         final MeshMessage meshMessage;
         final ApplicationKey appKey = meshRepository.getMeshNetworkLiveData().getMeshNetwork().getAppKey(0);
@@ -507,6 +517,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
         else {
             scheduleTask = new ScheduleTask(name,group.getAddress(),AlarmReceiver.CLOSE_DEVICE_ACTION,hour,minute);
         }
+        //获取时间？
         long time = getTime(Calendar.getInstance());
         Log.d(TAG, "得到的time "+time);
         if(scheduleTasks.isEmpty()){
