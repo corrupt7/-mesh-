@@ -53,6 +53,7 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
     private boolean LEDStatus = false;
     private List<Group> groups;
     private GroupUpdateDialog dialog;
+    private boolean isGetetLEDStatus = false;
     private MutableLiveData<List<String>> state = new MutableLiveData<>();
 
     @Override
@@ -60,8 +61,12 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_node);
         initData();
-        setObservers();
         initView();
+        setObservers();
+        //初始化完后清楚观察者
+//        if(meshTools.getMeshMessageLiveData().hasObservers()){
+//            meshTools.getMeshMessageLiveData().removeObservers(this);
+//        }
 
     }
 
@@ -117,13 +122,14 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
         for (int i=0;i< nodes.size();i++){
             setupMeshMessageObservers(i);
             getNodeStatus(nodes.get(i));
+            isGetetLEDStatus=false;
         }
-//        meshTools.getMeshNetworkLiveData().observe(this,meshNetworkLiveData -> {
-//            refreshData();
-//            adapter.setData(nodes,state);
-//            adapter.notifyDataSetChanged();
-//        });
-
+        //Tools.getMeshNetworkLiveData().observe(this,meshNetworkLiveData -> {
+            //refreshData();
+            //adapter.setData(nodes,state);
+           //dapter.notifyDataSetChanged();
+        //;
+//
 //        state.observe(this,strings -> {
 //            if (state.getValue().size()!= nodes.size()){return;}
 //            adapter.notifyDataSetChanged();
@@ -158,9 +164,8 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
                 break;
             case R.id.node_open:
                 LEDStatus=true;
-
                 //弹窗选择
-                final String[] items = {"打开设备","打开情景灯"};
+                final String[] items = {"打开设备","打开情景灯","红外中断状态"};
                 AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
                 alertBuilder.setTitle("打开设备");
                 alertBuilder.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
@@ -172,7 +177,11 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
                             textView.setTextColor(NodeActivity.this.getResources().getColor(R.color.teal_200));
                         }else if(i==1){
                             operateScenecLEDDevice(nodes.get(position),20);
-                            refreshState(position,"开启状态");
+                            refreshState(position,"情景灯状态");
+                            textView.setTextColor(NodeActivity.this.getResources().getColor(R.color.teal_200));
+                        }else if(i==2){
+                            operateScenecLEDDevice(nodes.get(position),40);
+                            refreshState(position,"红外中断状态");
                             textView.setTextColor(NodeActivity.this.getResources().getColor(R.color.teal_200));
                         }
                         Toast.makeText(NodeActivity.this, items[i], Toast.LENGTH_SHORT).show();
@@ -183,7 +192,7 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
                 break;
             case R.id.node_close:
                 LEDStatus=false;
-                operateScenecLEDDevice(nodes.get(position),40);
+                operateScenecLEDDevice(nodes.get(position),60);
                 textView.setTextColor(this.getResources().getColor(R.color.red));
                 refreshState(position,"关闭状态");
                 break;
@@ -214,6 +223,7 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
         meshTools.getMeshMessageLiveData().observe(this,meshMessage -> {
             if (meshMessage instanceof GenericOnOffStatus) {
+                isGetetLEDStatus=true;
                 final GenericOnOffStatus status = (GenericOnOffStatus) meshMessage;
                 final boolean presentState = status.getPresentState();
                 final Boolean targetOnOff = status.getTargetState();

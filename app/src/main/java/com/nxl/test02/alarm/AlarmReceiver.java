@@ -136,7 +136,6 @@ public class AlarmReceiver extends BroadcastReceiver {
             return;
         }
 
-
         try {
             setObservers();
             operateLEDDevice();

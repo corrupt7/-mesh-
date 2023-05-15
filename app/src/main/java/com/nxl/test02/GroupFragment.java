@@ -2,20 +2,26 @@ package com.nxl.test02;
 
 
 import static com.nxl.test02.tools.BleScanSetting.buildRepeatScanFilters;
+import static com.nxl.test02.tools.BleScanSetting.buildScanFilters;
 import static com.nxl.test02.tools.BleScanSetting.buildScanSettings;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.icu.util.Calendar;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -32,6 +38,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.nxl.test02.alarm.AlarmSender;
 import com.nxl.test02.meshTools.MeshTools;
@@ -42,6 +49,7 @@ import com.nxl.test02.room.ScheduleTask;
 import com.nxl.test02.room.ScheduleTaskDao;
 import com.nxl.test02.room.ScheduleTaskDatabase;
 import com.nxl.test02.style.RecyclerViewItemDecoration;
+import com.nxl.test02.tools.BlueToothUtil;
 import com.nxl.test02.tools.PendingIntentUtil;
 import com.nxl.test02.tools.ToastUtils;
 
@@ -55,8 +63,13 @@ import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshBeacon;
 import no.nordicsemi.android.mesh.MeshNetwork;
+import no.nordicsemi.android.mesh.transport.Element;
+import no.nordicsemi.android.mesh.transport.GenericOnOffSet;
 import no.nordicsemi.android.mesh.transport.GenericOnOffSetUnacknowledged;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
+import no.nordicsemi.android.mesh.transport.MeshModel;
+import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat;
 import no.nordicsemi.android.support.v18.scanner.ScanCallback;
 import no.nordicsemi.android.support.v18.scanner.ScanRecord;
@@ -70,6 +83,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
     private Button insertButton,clearButton;
     private RecyclerView recyclerView;
     private GroupAdapter adapter;
+    private BlueToothUtil blueTooth;
     private boolean LEDstatus =false;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ScheduleTaskDatabase scheduleTaskDatabase;
@@ -77,8 +91,11 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
     private MeshTools meshRepository;
     private MeshNetwork meshNetwork;
     private List<Group> groups;
+    private Context context;
+    private ScanCallback scanCallbacks;
     private boolean isConnectToProxy = false;
     private MutableLiveData<ExtendedBluetoothDevice> deviceLiveData = new MutableLiveData<>();
+    private List<ExtendedBluetoothDevice> deviceBeanList;
 
     //这四个变量是在定时任务弹窗中的，其他不要使用
     private int hour,minute,LedStatus;
@@ -108,6 +125,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
         });
         //置空
         deviceLiveData.postValue(null);
+        initBleScan();
     }
 
     @Override
@@ -124,7 +142,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
         insertButton.setOnClickListener(this);
         clearButton.setOnClickListener(this);
         swipeRefreshLayout = rootView.findViewById(R.id.srl);
-
+        deviceBeanList=new ArrayList<>();
         recyclerView = rootView.findViewById(R.id.device_groups);
         adapter = new GroupAdapter(groups);
         recyclerView.setAdapter(adapter);
@@ -153,11 +171,28 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
                         break;
                     case R.id.turn_on_by_group:
                         LEDstatus = true;
-                        operateLEDDevice(group);
+                        //弹窗选择
+                        final String[] items = {"打开设备","打开情景灯","红外中断状态"};
+                        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
+                        alertBuilder.setTitle("打开设备");
+                        alertBuilder.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                if(i==0){
+                                    operateLEDDevice(group,0);
+                                }else if(i==1){
+                                    operateLEDDevice(group,20);
+                                }else if(i==2){
+                                    operateLEDDevice(group,40);
+                                }
+                                dialogInterface.dismiss();
+                            }
+                        });
+                        alertBuilder.show();
                         break;
                     case R.id.turn_off_by_group:
                         LEDstatus = false;
-                        operateLEDDevice(group);
+                        operateLEDDevice(group,60);
                         break;
                     case R.id.delete_group:
                        List<ScheduleTask> scheduleTasks = scheduleTaskDao.queryScheduleTaskByGroupAndAction(group.getAddress(), AlarmReceiver.OPEN_DEVICE_ACTION);
@@ -306,7 +341,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
      * @param group
      */
     @SuppressLint({"MissingPermission", "NewApi"})
-    private void operateLEDDevice(Group group){
+    private void operateLEDDevice(Group group,int tid){
         //重新连接至代理节点
         if (!isConnectToProxy){
             //meshRepository.getmSentGroupMessage().removeObservers(getActivity());
@@ -326,13 +361,13 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
                 isConnectToProxy = aBoolean;
                 if (aBoolean){
                     ToastUtils.show(getActivity(),"连接成功");
-                    sendMessage(group);
+                    sendMessageWithTid(group,tid);
                 }
             });
             connectToProxy();
         }
         else {
-            sendMessage(group);
+            sendMessageWithTid(group,tid);
         }
 
     }
@@ -353,6 +388,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
                     byte[] meshBeaconData = meshRepository.getMeshManagerApi().getMeshBeaconData(scanRecord.getBytes());
                     MeshBeacon meshBeacon = meshRepository.getMeshManagerApi().getMeshBeacon(meshBeaconData);
                     ExtendedBluetoothDevice bean = new ExtendedBluetoothDevice(result,meshBeacon);
+                    deviceBeanList.add(bean);
                     if (deviceLiveData.getValue()==null){
                         Log.d(TAG, "自动连接找到了设备");
                         deviceLiveData.postValue(bean);
@@ -365,16 +401,34 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
 
             }
         };
-        scanner.startScan(buildRepeatScanFilters(),buildScanSettings(),scanCallback);
+        try {
+            context=getActivity();
+            blueTooth = new BlueToothUtil();
+            if (!blueTooth.isSupportBlueTooth()){
+                Toast.makeText(getActivity(),"不支持蓝牙!",Toast.LENGTH_SHORT).show();
+            }
+            if (!blueTooth.getBlueToothStatus()){
+                Toast.makeText(getActivity(),"未打开蓝牙!",Toast.LENGTH_SHORT).show();
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (context.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA, Manifest.permission.BLUETOOTH_SCAN,Manifest.permission.BLUETOOTH_CONNECT}, 1);
+                }
+            }
+
+            scanner.startScan(buildScanFilters(),buildScanSettings(),scanCallbacks);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        //scanner.startScan(buildRepeatScanFilters(),buildScanSettings(),scanCallbacks);
 //        Executor singleThreadExecutor = Executors.newSingleThreadExecutor();
 //        singleThreadExecutor.execute(new Runnable() {
 //            @Override
 //            public void run() {
 //                try {
-        try {
-            Thread.sleep(30);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        while(deviceBeanList.isEmpty()){
+            continue;
         }
         scanner.stopScan(scanCallback);
                     if (deviceLiveData.getValue()==null){
@@ -399,7 +453,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
 
     }
     //发送数据
-    private  void sendMessage(Group group){
+    private void sendMessage(Group group){
         final MeshMessage meshMessage;
         final ApplicationKey appKey = meshRepository.getMeshNetworkLiveData().getMeshNetwork().getAppKey(0);
         final int tid = new Random().nextInt();
@@ -411,6 +465,19 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
             e.printStackTrace();
         }
     }
+    //
+    private void sendMessageWithTid(Group group,int tid){
+        final MeshMessage meshMessage;
+        final ApplicationKey appKey = meshRepository.getMeshNetworkLiveData().getMeshNetwork().getAppKey(0);
+        meshMessage =new GenericOnOffSetUnacknowledged(appKey,LEDstatus,new Random().nextInt(20)+tid);
+        try {
+            meshRepository.getMeshManagerApi().createMeshPdu(group.getAddress(),meshMessage);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * 定时任务弹窗
@@ -497,7 +564,17 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
      */
     @SuppressLint("NewApi")
     private void scheduleTask(Group group,int status,String name){
+
         AlarmManager am = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+
+        boolean hasPermission = am.canScheduleExactAlarms();//true:有权限,false:没有权限
+        if(hasPermission){
+            System.out.println("ALarm has permissionnnnnnnnnnnnnnn");
+        }else{
+            System.out.println("ALarm not has permissionnnnnnnnnnnnnnn");
+        }
+
+
         Intent mIntent = new Intent(getActivity(),AlarmReceiver.class);
         mIntent.putExtra("taskName",name);
         PendingIntent pendingIntent;
@@ -617,6 +694,56 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
             }
             scheduleTaskDao.deleteScheduleTask(scheduleTask);
         }
+
+    }
+
+
+
+
+    @SuppressLint("MissingPermission")
+    public void initBleScan(){
+        //扫描回调函数
+        scanCallbacks = new ScanCallback() {
+            @Override
+            public void onScanFailed(int errorCode) {
+                super.onScanFailed(errorCode);
+                Log.d(TAG, "onScanFailed: "+errorCode);
+            }
+
+            @Override
+            public void onScanResult(int callbackType, ScanResult result) {
+                super.onScanResult(callbackType, result);
+                boolean isRepetition = false;
+                try {
+                    //扫描设备
+                    ScanRecord scanRecord = result.getScanRecord();
+                    byte[] bytes = scanRecord.getBytes();
+                    byte[] meshBeaconData = meshRepository.getMeshManagerApi().getMeshBeaconData(scanRecord.getBytes());
+                    MeshBeacon meshBeacon = meshRepository.getMeshManagerApi().getMeshBeacon(meshBeaconData);
+                    BluetoothDevice device = result.getDevice();
+                    if (!deviceBeanList.isEmpty()){
+                        for (ExtendedBluetoothDevice deviceBean:deviceBeanList){
+                            if (deviceBean.getAddress().equals(device.getAddress())){
+                                isRepetition=true;
+                            }
+                        }
+                    }
+                    //扫描可用设备时将不在列表的ble设备加入列表
+
+                    if(!isRepetition){
+                        ExtendedBluetoothDevice bean = new ExtendedBluetoothDevice(result,meshBeacon);
+                        deviceBeanList.add(bean);
+                        Log.d(TAG, "onScanResult: "+device.getAddress()+"meshBeacon:"+meshBeacon+" bytes:"+bytes.length);
+                        for (int i=0;i<bytes.length;i++){
+                            Log.d(TAG, "bytes: "+i+" = "+bytes[i]);
+                        }
+                    }
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        };
 
     }
 
