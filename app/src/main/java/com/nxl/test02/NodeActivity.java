@@ -10,6 +10,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -55,6 +56,7 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
     private GroupUpdateDialog dialog;
     private boolean isGetetLEDStatus = false;
     private MutableLiveData<List<String>> state = new MutableLiveData<>();
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +65,8 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
         initData();
         initView();
         setObservers();
+        Intent intent=getIntent();
+        username=intent.getStringExtra("username").toString();
         //初始化完后清楚观察者
 //        if(meshTools.getMeshMessageLiveData().hasObservers()){
 //            meshTools.getMeshMessageLiveData().removeObservers(this);
@@ -197,9 +201,19 @@ public class NodeActivity extends AppCompatActivity implements SwipeRefreshLayou
                 refreshState(position,"关闭状态");
                 break;
             case R.id.set_group:
+                System.out.println(username);
+                if(!username.equals("admin")){
+                    ToastUtils.show(NodeActivity.this,"权限不足！只有管理员能设置分组");
+                    break;
+                }
                 showGroupDialog(nodes.get(position));
                 break;
             case R.id.cancel_network:
+                System.out.println(username);
+                if(!username.equals("admin")){
+                    ToastUtils.show(NodeActivity.this,"权限不足！只有管理员能移出网络");
+                    break;
+                }
                 try{
                     cancelNetwork(nodes.get(position));
                 }

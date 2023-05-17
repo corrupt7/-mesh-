@@ -96,6 +96,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
     private boolean isConnectToProxy = false;
     private MutableLiveData<ExtendedBluetoothDevice> deviceLiveData = new MutableLiveData<>();
     private List<ExtendedBluetoothDevice> deviceBeanList;
+    private String userName;
 
     //这四个变量是在定时任务弹窗中的，其他不要使用
     private int hour,minute,LedStatus;
@@ -195,6 +196,12 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Swi
                         operateLEDDevice(group,60);
                         break;
                     case R.id.delete_group:
+                        Bundle bundle = getArguments();
+                        userName=bundle.getString("username");
+                        if(!userName.equals("admin")){
+                            ToastUtils.show(getActivity(),"权限不足！只有管理员能删除");
+                            break;
+                        }
                        List<ScheduleTask> scheduleTasks = scheduleTaskDao.queryScheduleTaskByGroupAndAction(group.getAddress(), AlarmReceiver.OPEN_DEVICE_ACTION);
                        List<ScheduleTask> scheduleTasks1 = scheduleTaskDao.queryScheduleTaskByGroupAndAction(group.getAddress(), AlarmReceiver.CLOSE_DEVICE_ACTION);
                        if(scheduleTasks.isEmpty()&&scheduleTasks1.isEmpty()){

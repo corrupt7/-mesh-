@@ -106,6 +106,7 @@ public class UserFragment extends Fragment {
                 }
                 Intent intent = new Intent();
                 intent.setClass(getActivity(),NodeActivity.class);
+                intent.putExtra("username",userName);
                 requireActivity().startActivity(intent);
             }
         });

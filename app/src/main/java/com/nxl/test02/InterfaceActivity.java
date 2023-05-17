@@ -68,7 +68,9 @@ public class InterfaceActivity extends AppCompatActivity implements View.OnClick
         viewPager = findViewById(R.id.id_viewpager);
         fragmentList = new ArrayList<>();
         fragmentList.add(new BlueToothFragment());
-        fragmentList.add(new GroupFragment());
+        GroupFragment groupFragment = new GroupFragment();
+        groupFragment.setArguments(bundle);
+        fragmentList.add(groupFragment);
         fragmentList.add(new ScheduleFragment());
         UserFragment userFragment = new UserFragment();
         userFragment.setArguments(bundle);

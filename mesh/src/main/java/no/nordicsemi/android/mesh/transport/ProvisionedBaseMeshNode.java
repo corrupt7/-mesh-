@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -67,7 +68,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     public long mTimeStampInMillis;
     @ColumnInfo(name = "name")
     @Expose
-    protected String nodeName = "My Node";
+    protected String nodeName = UUID.randomUUID().toString().substring(0,8);
     @ColumnInfo(name = "ttl")
     @Expose
     protected Integer ttl = 5;

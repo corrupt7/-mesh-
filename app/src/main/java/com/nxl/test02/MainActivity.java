@@ -88,13 +88,6 @@ public class MainActivity extends AppCompatActivity {
                 retrofit = new Retrofit.Builder().baseUrl(baseUrl).build();
                 loginService = retrofit.create(LoginService.class);
 
-                //登录
-                Toast.makeText(getApplicationContext(),"登录成功",Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent();
-                intent.putExtra("username",user.getUsername());
-                intent.setClass(MainActivity.this, InterfaceActivity.class);
-                startActivity(intent);
-
 
                 if (usernameText.toString().isEmpty()||pwdText.toString().isEmpty()){
                         Toast.makeText(getApplicationContext(),"请输入完整信息",Toast.LENGTH_LONG).show();
@@ -193,7 +186,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
 
     //设置drawable的格式（开源库的图片太大了）
     private void setDrawableStyle(Drawable drawable,EditText editText){
