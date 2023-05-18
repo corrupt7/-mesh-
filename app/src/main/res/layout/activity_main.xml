@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_pic">
+
+    <com.nxl.test02.style.GradientColorTextView
+        android:id="@+id/login_title"
+        android:text="@string/login_title"
+        android:textSize="50sp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"/>
+
+
+    <EditText
+        android:id="@+id/userName"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:inputType="text"
+        android:textColor="@color/black"
+        android:hint="用户名"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:layout_below="@+id/login_title"
+        android:drawableLeft="@drawable/login_user"
+        android:drawablePadding="20dp"
+        android:text="@string/username_test"/>
+
+    <EditText
+        android:id="@+id/passWord"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@+id/userName"
+        android:layout_marginTop="15dp"
+        android:drawableLeft="@drawable/login_password"
+        android:drawablePadding="20dp"
+        android:hint="密码"
+        android:inputType="textPassword"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:textColor="@color/black"
+        android:text="@string/password_test"/>
+
+    <TextView
+        android:id="@+id/forgetPassword"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:text="忘记密码?"
+        android:textColor="@color/purple_700"
+        android:layout_below="@+id/passWord"
+        android:paddingTop="5dp"
+        android:gravity="right"/>
+
+    <Button
+        android:id="@+id/login"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="登录"
+        android:textSize="20sp"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:layout_below="@+id/forgetPassword"
+        android:layout_marginTop="20dp"/>
+
+    <Button
+        android:id="@+id/register"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="注册"
+        android:textSize="20sp"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:layout_below="@+id/login"
+        android:layout_marginTop="20dp"
+        />
+
+
+
+</RelativeLayout>

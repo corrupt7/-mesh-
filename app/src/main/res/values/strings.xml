@@ -1,0 +1,82 @@
+<resources>
+    <string name="app_name">智能灯控方案</string>
+    <string name="login_title">智能灯控方案</string>
+    <string name="lj">连接设备</string>
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="text_equipment">设备管理</string>
+    <string name="text_group">设备分组</string>
+    <string name="text_user">我的</string>
+    <string name="test">测试</string>
+    <string name="search_device">搜索可用设备</string>
+    <string name="username_test">admin</string>
+    <string name="password_test">maxnxl555</string>
+    <string name="device_group">设置分组</string>
+    <string name="device_connect">连接至此设备</string>
+    <string name="not_search_device">连接至下一个设备</string>
+    <string name="device_open">打开</string>
+    <string name="device_close">关闭</string>
+    <string name="device_name">设备名称</string>
+    <string name="device_address">设备地址</string>
+    <string name="insert_group">添加分组</string>
+    <string name="clear_groups">清除所有分组</string>
+    <string name="turn_on_by_group">全部开启</string>
+    <string name="turn_off_by_group">全部关闭</string>
+    <string name="group_name_info">请输入分组名称</string>
+    <string name="group_default_name">默认分组</string>
+    <string name="select_group">请选择此设备所属小组</string>
+    <string name="cancel">取消</string>
+    <string name="confirm">确定</string>
+    <string name="delete_group">删除分组</string>
+    <string name="set_scheduled_task">定时任务</string>
+    <string name="text_schedule">定时任务</string>
+    <string name="upgrade_group_name">修改分组名称</string>
+    <string name="clear_device_in_group">清除所有设备</string>
+    <string name="upgrade_device_name">修改名称</string>
+    <string name="delete_device">删除设备</string>
+    <string name="group_name_upgrade">输入一个设备组的新名字</string>
+    <string name="device_name_upgrade">请输入您想要修改的设备名</string>
+    <string name="device_default_name">默认设备</string>
+    <string name="open_schedule_task">定时开启</string>
+    <string name="operate_schedule_task">1、输入分组名称2、选择时间3、选择开启或关闭</string>
+    <string name="close_schedule_task">定时关闭</string>
+    <string name="schedule_task_name">在此输入定时任务名称</string>
+    <string name="schedule_name">名称</string>
+    <string name="schedule_group">操作分组</string>
+    <string name="schedule_action">操作</string>
+    <string name="schedule_time">定时时间</string>
+    <string name="schedule_operate">设置</string>
+    <string name="delete_schedule">删除定时任务</string>
+    <string name="schedule_monitor">定时任务监控</string>
+    <string name="welcome_user">欢迎您:</string>
+    <string name="upgrade_password">修改密码</string>
+    <string name="monitor_time">执行时间</string>
+    <string name="monitor_result">执行结果</string>
+    <string name="monitor_message">执行信息</string>
+    <string name="monitor_name">任务名称</string>
+    <string name="node_name">节点名称</string>
+    <string name="node_address">节点地址</string>
+    <string name="node_open">打开设备</string>
+    <string name="node_close">关闭设备</string>
+    <string name="node_status">设备状态</string>
+    <string name="get_node_status">获取状态</string>
+    <string name="node_control">查看我的设备</string>
+    <string name="set_group">设置分组</string>
+    <string name="connect_state">连接状态</string>
+    <string name="not_connect">未连接至mesh网络</string>
+    <string name="delete_monitor_log">删除记录</string>
+</resources>
